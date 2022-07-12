@@ -1,5 +1,7 @@
 # LCR-BNN: Lipschitz Continuity Retained Binary Neural Network
 The code for the Lipschitz Continuity Retained Binary Neural Network, which has been accepted to ECCV 2022.
+<img src="pipeline.jpg" width="700">
+
 ## Quick Start
 First, download our repo:
 ```bash
