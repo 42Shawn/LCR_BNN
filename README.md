@@ -8,7 +8,7 @@ The code for the Lipschitz Continuity Retained Binary Neural Network, which has 
 First, download our repo:
 ```bash
 git clone https://github.com/42Shawn/LCR_BNN.git
-cd LCR_BNN
+cd LCR_BNN/imagenet
 ```
 Then, run our repo:
 ```bash
