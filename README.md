@@ -12,7 +12,7 @@ cd LCR_BNN
 ```
 Then, run our repo:
 ```bash
-python main.py --save='v0' --data_path='path-to-imagenet' --gpus='gpu-id' --alpha=8
+python main.py --save='v0' --data_path='path-to-imagenet' --gpus='gpu-id' --batch_size=128 --alpha=8 
 ```
 Note that the alpha can be change to conduct ablation studies, and alpha=0 is equal to IR-Net itself.
 
