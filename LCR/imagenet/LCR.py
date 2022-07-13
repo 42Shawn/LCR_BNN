@@ -1,4 +1,3 @@
-
 import torch
 import torch.nn as nn
 import numpy as np
@@ -39,21 +38,21 @@ def get_margin_from_BN(bn):
 
 
 class LCR(nn.Module):
-    def __init__(self, t_net, s_net):
+    def __init__(self, fp_net, net):
         super(LCR, self).__init__()
 
-        t_channels = t_net.get_channel_num()
-        s_channels = s_net.get_channel_num()
+        fp_channels = fp_net.get_channel_num()
+        channels = net.get_channel_num()
 
-        self.Connectors = nn.ModuleList([build_feature_connector(t, s) for t, s in zip(t_channels, s_channels)])
+        self.Connectors = nn.ModuleList([build_feature_connector(t, s) for t, s in zip(fp_channels, channels)])
 
-        teacher_bns = t_net.get_bn_before_relu()
-        margins = [get_margin_from_BN(bn) for bn in teacher_bns]
+        bns = fp_net.get_bn_before_relu()
+        margins = [get_margin_from_BN(bn) for bn in bns]
         for i, margin in enumerate(margins):
             self.register_buffer('margin%d' % (i+1), margin.unsqueeze(1).unsqueeze(2).unsqueeze(0).detach())
 
-        self.t_net = t_net
-        self.s_net = s_net
+        self.fp_net = fp_net
+        self.net = net
 
     def retention_matrix(self, fm1, fm2):
         if fm1.size(2) > fm2.size(2):
@@ -77,19 +76,19 @@ class LCR(nn.Module):
 
     def forward(self, x):
 
-        t_feats = self.t_net.extract_feature(x, preReLU=False)
-        s_feats = self.s_net.scaleable_feature(x, preReLU=False)
+        fp_feats = self.fp_net.extract_feature(x, preReLU=False)
+        binary_feats = self.net.scaleable_feature(x, preReLU=False)
 
-        feat_num = len(t_feats)
+        feat_num = len(fp_feats)
 
         loss_lcr = 0
         for i in range(feat_num):
 
             if i < feat_num - 1:
 
-                A_s = torch.bmm(self.retention_matrix(s_feats[i], s_feats[i + 1]), self.retention_matrix(s_feats[i], s_feats[i + 1]).transpose(2,1)) #for calculate the eigenvalue of retention matrix, because retention matrix is asymmetric
-                A_t = torch.bmm(self.retention_matrix(t_feats[i].detach(), t_feats[i + 1].detach()), self.retention_matrix(t_feats[i].detach(), t_feats[i + 1].detach()).transpose(2,1))
+                RM_b = torch.bmm(self.retention_matrix(binary_feats[i], binary_feats[i + 1]), self.retention_matrix(binary_feats[i], binary_feats[i + 1]).transpose(2,1)) #for calculate the eigenvalue of retention matrix, because retention matrix is asymmetric
+                RM_fp = torch.bmm(self.retention_matrix(fp_feats[i].detach(), fp_feats[i + 1].detach()), self.retention_matrix(fp_feats[i].detach(), fp_feats[i + 1].detach()).transpose(2,1))
 
-                loss_lcr += F.mse_loss(self.TopEigenvalue(K=A_s), self.TopEigenvalue(K=A_t)) / 2 ** (feat_num - i - 1)
+                loss_lcr += F.mse_loss(self.TopEigenvalue(K=RM_b), self.TopEigenvalue(K=RM_fp)) / 2 ** (feat_num - i - 1)
 
         return loss_lcr
