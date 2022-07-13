@@ -270,7 +270,7 @@ def forward(data_loader, model, model_fp, criterion, epoch=0, training=True, opt
     top5 = AverageMeter()
 
     end = time.time()
-    d_model = LCR.LCR(model_fp, model)
+    lipschitz_regularization = LCR.LCR(model_fp, model)
 
     for i, (inputs, target) in enumerate(data_loader):
             # measure data loading time
@@ -287,7 +287,7 @@ def forward(data_loader, model, model_fp, criterion, epoch=0, training=True, opt
 
             output = model(input_var)
 
-            loss_lcr = d_model(input_var)
+            loss_lcr = lipschitz_regularization(input_var)
             loss_lcr = args.alpha * loss_lcr.sum()/ args.batch_size/ 10000
             loss_ce = criterion(output, target_var)
             loss = loss_ce + loss_lcr
