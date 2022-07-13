@@ -1,6 +1,7 @@
 # LCR-BNN: Lipschitz Continuity Retained Binary Neural Network
 The code for the Lipschitz Continuity Retained Binary Neural Network, which has been accepted to ECCV 2022.
-<img src="pipeline.jpg" width="800">
+<img src="pipeline.jpg" width="800">    
+(**a**) An overview of our Lipschitz regularization for a binary convolutional layer: regularizing the BNN via aligning the Lipschitz constants of binary network and its latent full-precision counterpart is the goal of our work. To reach this goal, the input and output activations of the $k$-th layer compose the Retention Matrix ($\mathbf{RM}^k$) for approximating the Lipschitz constant of this layer. $\mathbf{RM}^k_F$ and $\mathbf{RM}^k_B$ are then used to calculate the Lipschitz constant of this layer (the validation of this approximation is elaborated in Section 3.2). Finally, the Lipschitz continuity of the BNN is retained under a regularization module. (**b**) Difference between Spectral Normalization (Left) and LCR (Right).
 
 ## Quick Start
 First, download our repo:
